@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6211" systemVersion="14A298i" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7702" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="G7C-ex-OlO">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6204"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7701"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Navigation Controller-->
+        <scene sceneID="2ML-ax-HYg">
+            <objects>
+                <navigationController id="G7C-ex-OlO" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="1u1-dQ-tTt">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="vXZ-lx-hvc" kind="relationship" relationship="rootViewController" id="GlU-ef-zix"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CJx-jO-a0f" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-925" y="255"/>
+        </scene>
+        <!--Calendar View Controller-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
-                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModuleProvider="" sceneMemberID="viewController">
+                <viewController id="vXZ-lx-hvc" customClass="CalendarViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
                         <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
@@ -15,11 +31,82 @@
                     <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1qH-Lp-kON" customClass="JTCalendarMenuView">
+                                <rect key="frame" x="0.0" y="64" width="600" height="50"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RQm-xy-kOa" customClass="JTCalendarContentView">
+                                <rect key="frame" x="0.0" y="114" width="600" height="300"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="300" id="OoW-AJ-v3b"/>
+                                </constraints>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="1qH-Lp-kON" secondAttribute="trailing" id="3NN-GZ-yOf"/>
+                            <constraint firstItem="RQm-xy-kOa" firstAttribute="top" secondItem="1qH-Lp-kON" secondAttribute="bottom" id="90L-DB-CT7"/>
+                            <constraint firstItem="RQm-xy-kOa" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" constant="114" id="92g-sX-jsS"/>
+                            <constraint firstItem="1qH-Lp-kON" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" id="X7i-4A-Mdm"/>
+                            <constraint firstItem="1qH-Lp-kON" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="XHR-jq-7Fz"/>
+                            <constraint firstItem="RQm-xy-kOa" firstAttribute="leading" secondItem="1qH-Lp-kON" secondAttribute="leading" id="shK-sA-Vbq"/>
+                            <constraint firstItem="RQm-xy-kOa" firstAttribute="trailing" secondItem="1qH-Lp-kON" secondAttribute="trailing" id="tDE-Xv-2kF"/>
+                        </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="wm6-GZ-bx9">
+                        <barButtonItem key="leftBarButtonItem" title="Show Week" id="O0B-nt-4rK">
+                            <connections>
+                                <action selector="tappedWeekModeToggle:" destination="vXZ-lx-hvc" id="Dl6-Vj-EkI"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="9rd-UX-OVc">
+                            <connections>
+                                <action selector="tappedAddButton:" destination="vXZ-lx-hvc" id="OCF-z5-SNg"/>
+                                <segue destination="b3a-y1-UkK" kind="showDetail" identifier="AddEntrySegue" id="RQd-bm-9LE"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="calendarContentView" destination="RQm-xy-kOa" id="Cb7-oj-H2n"/>
+                        <outlet property="calendarContentViewHeightConstraint" destination="OoW-AJ-v3b" id="RL5-Lu-Xv4"/>
+                        <outlet property="calendarMenuView" destination="1qH-Lp-kON" id="H05-ie-Yjf"/>
+                        <outlet property="weekModeToggle" destination="O0B-nt-4rK" id="RXC-KJ-gJo"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="6" y="255"/>
+        </scene>
+        <!--Add Time Entry-->
+        <scene sceneID="6k3-fg-fN4">
+            <objects>
+                <tableViewController title="Add Time Entry" id="b3a-y1-UkK" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Epf-Ba-eFm">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="O8c-ev-bPL">
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="O8c-ev-bPL" id="zcs-G9-SMy">
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="b3a-y1-UkK" id="TXN-Hw-n0Q"/>
+                            <outlet property="delegate" destination="b3a-y1-UkK" id="gwv-Wr-4bY"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Edit" id="D2E-LB-NXd">
+                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="E4d-vY-cG6"/>
+                    </navigationItem>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XrL-j7-QEU" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="729" y="101"/>
         </scene>
     </scenes>
 </document>
