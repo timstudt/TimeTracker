@@ -22,7 +22,7 @@
     
     // Apply an ascending sort for the items
     NSString *sortKey = sortAttribute ? : _defaultSortAttribute;
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:sortKey ascending:YES selector:nil];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:sortKey ascending:NO selector:nil];
     NSArray *descriptors = @[sortDescriptor];
     fetchRequest.sortDescriptors = descriptors;
     
@@ -32,7 +32,8 @@
 
     // Init the fetched results controller
     NSError __autoreleasing *error;
-    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:_context sectionNameKeyPath:@"section" cacheName:nil];
+//    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:_context sectionNameKeyPath:@"section" cacheName:nil];
+    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:_context sectionNameKeyPath:nil cacheName:nil];
     
     // Perform the fetch
     if (![_fetchedResultsController performFetch:&error])

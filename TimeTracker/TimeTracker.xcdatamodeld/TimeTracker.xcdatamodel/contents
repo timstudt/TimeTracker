@@ -7,8 +7,13 @@
         <attribute name="note" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="project" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="startTime" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="times" inverseEntity="User" syncable="YES"/>
+    </entity>
+    <entity name="User" representedClassName="User" syncable="YES">
+        <relationship name="times" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TimeEntry" inverseName="user" inverseEntity="TimeEntry" syncable="YES"/>
     </entity>
     <elements>
-        <element name="TimeEntry" positionX="-63" positionY="-18" width="128" height="135"/>
+        <element name="TimeEntry" positionX="7" positionY="-180" width="128" height="148"/>
+        <element name="User" positionX="-63" positionY="27" width="128" height="58"/>
     </elements>
 </model>

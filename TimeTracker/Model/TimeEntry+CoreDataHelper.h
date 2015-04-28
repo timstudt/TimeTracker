@@ -8,6 +8,27 @@
 
 #import "TimeEntry.h"
 
-@interface TimeEntry (CoreDataHelper)
+static NSString *const kTimeEntryEntityName = @"TimeEntry";
 
+static NSString *const kTimeEntryAttributeDate = @"date";
+static NSString *const kTimeEntryAttributeDateString = @"dateString";
+static NSString *const kTimeEntryAttributeNote = @"note";
+static NSString *const kTimeEntryAttributeProject = @"project";
+static NSString *const kTimeEntryAttributeStartTime = @"startTime";
+static NSString *const kTimeEntryAttributeEndTime = @"endTime";
+static NSString *const kTimeEntryAttributeDuration = @"duration";
+
+
+@interface TimeEntry (CoreDataHelper)
++ (NSPredicate *)predicateWithDate:(NSDate *)date;
++ (NSPredicate *)predicateWithStartDate:(NSDate *)startDate endDate:(NSDate *)endDate;
++ (NSArray *)findTimeEntriesWithDateString:(NSString *)date inContext:(NSManagedObjectContext *)context;
++ (NSArray *)findTimeEntriesWithDate:(NSDate *)date inContext:(NSManagedObjectContext *)context;
++ (NSUInteger)countTimeEntriesWithDateString:(NSString *)date inContext:(NSManagedObjectContext *)context;
++ (TimeEntry *)newTimeEntryInContext:(NSManagedObjectContext *)context;
++ (BOOL)addTimeEntryWithDictionary:(NSDictionary *)timeEntryDictionary inContext:(NSManagedObjectContext *)context;
+
+- (NSTimeInterval)duration;
+- (NSString *)durationString;
 @end
+

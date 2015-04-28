@@ -2,7 +2,7 @@
 //  TimeEntry.h
 //  TimeTracker
 //
-//  Created by Tim Studt on 26/04/15.
+//  Created by Tim Studt on 28/04/15.
 //  Copyright (c) 2015 Tim Studt. All rights reserved.
 //
 
@@ -13,8 +13,6 @@
 
 @interface TimeEntry : NSManagedObject
 
-@property (nonatomic, retain) NSDate * date;
-@property (nonatomic, retain) NSNumber * duration;
 @property (nonatomic, retain) NSDate * endTime;
 @property (nonatomic, retain) NSString * note;
 @property (nonatomic, retain) NSString * project;

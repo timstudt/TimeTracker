@@ -8,18 +8,25 @@
 
 #import <UIKit/UIKit.h>
 #import "JTCalendar.h"
+#import "TimeEntryDetailsViewController.h"
+#import "CoreDataHelper.h"
 
-@interface CalendarViewController : UIViewController
+@interface CalendarViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, TimeEntryDetailsViewControllerDelegate>
+
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *weekModeToggle;
 @property (weak, nonatomic) IBOutlet JTCalendarMenuView *calendarMenuView;
 
 @property (weak, nonatomic) IBOutlet JTCalendarContentView *calendarContentView;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *calendarContentViewHeightConstraint;
+@property (weak, nonatomic) IBOutlet UITableView *calendarTableView;
+@property (weak, nonatomic) IBOutlet UILabel *totalTimeLabel;
 
 @property (strong, nonatomic) JTCalendar *calendar;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *weekModeToggle;
+@property (nonatomic, strong) CoreDataHelper *coreDataHelper;
 
 - (IBAction)tappedWeekModeToggle:(UIBarButtonItem *)sender;
 - (IBAction)tappedAddButton:(id)sender;
+- (IBAction)tappedGetMonthButton:(UIBarButtonItem *)sender;
 
 @end
 
