@@ -9,5 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @interface User : NSObject
++ (void)setLastUsedProject:(NSString *)lastUsedProject;
++ (NSString *)lastUsedProject;
 
 @end

@@ -44,6 +44,10 @@ static NSString *const kButtonTitleEdit =  @"Edit";
 
     [super viewDidLoad];
     [self registerForKeyboardNotifications];
+    //setup table view
+//    [self.tableView registerClass:<#(__unsafe_unretained Class)#> forCellReuseIdentifier:<#(NSString *)#>]
+    self.tableView.estimatedRowHeight =  100;
+    self.tableView.rowHeight =  UITableViewAutomaticDimension;
     
 }
 
@@ -157,8 +161,10 @@ static NSString *const kButtonTitleEdit =  @"Edit";
         case tTimeEntryDetailsSectionDate:
         {
             if (self.datePickerIndexPath == indexPath) {
+                //date picker
                 cell = [self datePickerCellForTableView:tableView atIndexPath:indexPath];
             }else{
+                //normal date cell
                 NSInteger row = indexPath.row;
                 reuseId = @"TimeEntryTimeCell";
                 if (self.datePickerIndexPath && self.datePickerIndexPath.row < indexPath.row) {
@@ -171,12 +177,10 @@ static NSString *const kButtonTitleEdit =  @"Edit";
                         break;
                     case tTimeEntryDetailsDateRowStartTime:
                         title = @"Start Time";
-//                        content = [self.startTimeEntry dateString];
                         content = [self.startTimeEntry dateAndTimeStringDoesRelativeDateFormatting:NO];
                         break;
                     case tTimeEntryDetailsDateRowEndTime:
                         title = @"End Time";
-//                        content = [self.endTimeEntry timeString];
                         content = [self.endTimeEntry dateAndTimeStringDoesRelativeDateFormatting:NO];
                         break;
                     default:
@@ -184,13 +188,12 @@ static NSString *const kButtonTitleEdit =  @"Edit";
                         break;
                 }
                 
-                //            cell = [tableView dequeueReusableCellWithIdentifier:reuseId forIndexPath:indexPath];
                 cell = [tableView dequeueReusableCellWithIdentifier:reuseId];
                 if (!cell) {
                     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:reuseId];
                 }
                 
-                //TODO setup cells
+                //setup cells
                 cell.textLabel.text = title;
                 cell.detailTextLabel.text = content;
                 if (row == tTimeEntryDetailsDateRowDate) {
@@ -204,7 +207,6 @@ static NSString *const kButtonTitleEdit =  @"Edit";
         {
             reuseId = @"TimeEntryTextCell";
             cell = [tableView dequeueReusableCellWithIdentifier:reuseId forIndexPath:indexPath];
-//            cell = [tableView dequeueReusableCellWithIdentifier:reuseId];
             if (!cell) {
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:reuseId];
             }
@@ -253,14 +255,17 @@ static NSString *const kButtonTitleEdit =  @"Edit";
     switch (indexPath.section) {
         case tTimeEntryDetailsSectionDate:
         {
-            [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
             if (self.datePickerIndexPath && self.datePickerIndexPath.row < indexPath.row) {
                 self.datePickerIndexPath = indexPath;
+            }else if (self.datePickerIndexPath == indexPath || [self datePickerParentIndexPath] == indexPath){
+                self.datePickerIndexPath = nil;
             }else{
+                //hide datePicker
                 self.datePickerIndexPath = [NSIndexPath indexPathForRow:indexPath.row+1 inSection:indexPath.section];
             }
             
-            [self.tableView reloadData];
+            [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:tTimeEntryDetailsSectionDate] withRowAnimation:UITableViewRowAnimationAutomatic];
+            
         }
             break;
             
@@ -334,6 +339,7 @@ static NSString *const kButtonTitleEdit =  @"Edit";
     return YES;
     
 }
+
 // Here we save the textField's string whenever the user finishes editing it.
 - (void)textFieldDidEndEditing:(UITextField *)textField{
     
@@ -343,6 +349,7 @@ static NSString *const kButtonTitleEdit =  @"Edit";
         self.noteEntry = textField.text;
     }
     [self.tableView reloadData];
+    
 }
 
 #pragma mark - DatePicker delegate
@@ -357,7 +364,6 @@ static NSString *const kButtonTitleEdit =  @"Edit";
         //datePicker is visible
         NSIndexPath *parentCellIndexPath = nil;
         parentCellIndexPath = [self datePickerParentIndexPath];
-//        parentCellIndexPath = [NSIndexPath indexPathForRow:self.datePickerIndexPath.row - 1 inSection:0];
         
         NSDate *newDate = sender.date;
         switch (parentCellIndexPath.row) {
@@ -371,10 +377,8 @@ static NSString *const kButtonTitleEdit =  @"Edit";
                 break;
         }
         self.datePickerIndexPath = nil;
-//        self.datePicker = nil;
 
-//        [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:tTimeEntryDetailsSectionDate] withRowAnimation:UITableViewRowAnimationAutomatic];
-       [self.tableView reloadData];
+        [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:tTimeEntryDetailsSectionDate] withRowAnimation:UITableViewRowAnimationAutomatic];
     }
     
 }
@@ -391,7 +395,6 @@ static NSString *const kButtonTitleEdit =  @"Edit";
 - (void)mapFromTimeEntry:(TimeEntry *)timeEntry{
 
     //map data
-//    self.dateEntry = timeEntry.dateString;
     self.startTimeEntry = timeEntry.startTime;
     self.endTimeEntry = timeEntry.endTime;
     self.projectEntry = timeEntry.project;
@@ -433,9 +436,9 @@ static NSString *const kButtonTitleEdit =  @"Edit";
 
 - (BOOL)isDateValidForDatePicker:(UIDatePicker *)datePicker{
    
-//    NSDate *newDate = datePicker.date;
-//    return  ([newDate compare:datePicker.minimumDate] != NSOrderedAscending) && ([newDate compare:datePicker.maximumDate] != NSOrderedDescending);
-    return YES;
+    NSDate *newDate = datePicker.date;
+   return  ([newDate compare:datePicker.minimumDate] != NSOrderedAscending) && ([newDate compare:datePicker.maximumDate] != NSOrderedDescending);
+//    return YES;
     
 }
 

@@ -144,5 +144,13 @@
     
 }
 
++ (NSTimeInterval)timeIntervalInHours:(NSTimeInterval)interval{
+    
+    NSTimeInterval timeIntervalInHours = interval / 3600.;
+    return timeIntervalInHours;
+    
+}
+
+
 
 @end

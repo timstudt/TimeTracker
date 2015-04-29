@@ -1,5 +1,5 @@
 //
-//  ViewController.m
+//  CalendarViewController.m
 //  TimeTracker
 //
 //  Created by Tim Studt on 25/04/15.
@@ -8,6 +8,7 @@
 
 #import "CalendarViewController.h"
 #import "TimeEntry+CoreDataHelper.h"
+#import "User.h"
 #import "NSDate+Helpers.h"
 
 static NSString *const kCalendarModeWeek = @"Show Month";
@@ -33,8 +34,6 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     
     //store constraint, so we can restore it after change
     _calendarContentViewHeightConstraintMonthMode = self.calendarContentViewHeightConstraint.constant;
-    
-    //setup tableview
     
     //setup core data
     [self.coreDataHelper fetchedResultsController];
@@ -64,9 +63,7 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
         
         addEntryViewController.isEditMode = YES;
         addEntryViewController.delegate = self;
-//        NSString *dateForNewEntry = [[self dateHighlighted] dateString];
-//        [addEntryViewController newTimeEntryWithDate:dateForNewEntry project:nil];
-        [addEntryViewController newTimeEntryWithDate:[self dateHighlighted] project:nil];
+        [addEntryViewController newTimeEntryWithDate:[self dateHighlighted] project:[User lastUsedProject]];
     }else if ([segue.identifier isEqualToString:@"TimeEntryDetailsSegue"]){
         TimeEntryDetailsViewController *detailsViewController = segue.destinationViewController;
         detailsViewController.isEditMode = NO;
@@ -115,7 +112,6 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
 
-    //Todo: fetch by month/week selected
     NSInteger rows = self.tableData.count;
     return rows;
 
@@ -144,20 +140,6 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     
 }
 
-//- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-//    // Return YES if you want the specified item to be editable.
-//    return YES;
-//}
-
-// Override to support editing the table view.
-//- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-//    if (editingStyle == UITableViewCellEditingStyleDelete) {
-//        TimeEntry *entryToDelete = self.tableData[indexPath.row];
-//        [self.coreDataHelper deleteObject:entryToDelete];
-//        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-//    }
-//}
-
 #pragma mark - TimeEntryDetailsView delegate
 
 - (void)timeEntryDetailsDidCancel:(TimeEntryDetailsViewController *)viewController{
@@ -174,8 +156,10 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
         entryToSave = [TimeEntry newTimeEntryInContext:self.coreDataHelper.context];
     }
     [viewController mapToTimeEntry:entryToSave];
-
     [self.coreDataHelper save];
+    if (entryToSave.project) {
+        [User setLastUsedProject:entryToSave.project];
+    }
     //refresh done on viewdidappear
     
 }
@@ -190,25 +174,28 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     
 }
 
-- (IBAction)tappedWeekModeToggle:(UIBarButtonItem *)sender {
-
-    BOOL weekMode = self.calendar.calendarAppearance.isWeekMode;
-    [self activateWeekMode:!weekMode];
-//    [self refreshViewAfterDataChanged:NO];
-
-}
-
 - (IBAction)tappedAddButton:(id)sender {
     
-//    [self addEntry];
-//    [self refreshViewAfterDataChanged:YES];
+    NSLog(@"Add entry tapped");
     
 }
 
 - (IBAction)tappedGetMonthButton:(UIBarButtonItem *)sender {
     
     [self unselectHighlightedDate];
+    NSString *newTitle = sender.title;
+    BOOL goFullsize = NO;
+    if ([sender.title isEqualToString:@"Time Sheet"]) {
+        newTitle = @"Calendar";
+        goFullsize = YES;
+    }else if ([sender.title isEqualToString:@"Calendar"]) {
+        newTitle = @"Time Sheet";
+        goFullsize = NO;
+    }
+    [self activateFullsizeTableView:goFullsize];
     [self refreshViewAfterDataChanged:NO];
+
+    sender.title = newTitle;
     
 }
 
@@ -225,7 +212,7 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     [self.calendar setMenuMonthsView:self.calendarMenuView];
     [self.calendar setContentView:self.calendarContentView];
     [self.calendar setDataSource:(id<JTCalendarDataSource>)self];
-    //KVO
+    //KVO for getting updates when user swipes month/week
     [self.calendar setValue:[NSDate date]
                      forKey:kCalendarCurrentDateKey];
     [self.calendar addObserver:self
@@ -266,14 +253,23 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
 
 }
 
-- (void)activateWeekMode:(BOOL)activateWeekMode{
+- (void)activateFullsizeTableView:(BOOL)fullSize{
     
-    //update toggle switch
-    self.weekModeToggle.title = activateWeekMode? kCalendarModeWeek : kCalendarModeMonth;
-    //update calendar view
-    self.calendar.calendarAppearance.isWeekMode = activateWeekMode;
-    self.calendarContentViewHeightConstraint.constant = activateWeekMode? 55.f : _calendarContentViewHeightConstraintMonthMode;
-    [self.calendar reloadAppearance];
+    CGFloat newSize = fullSize? 0.1f : _calendarContentViewHeightConstraintMonthMode;
+    [self updateViewConstraintsWithCalendarHeight:newSize animated:YES];
+
+}
+
+- (void)updateViewConstraintsWithCalendarHeight:(CGFloat)calendarHeight animated:(BOOL)animated{
+    
+    [self.view layoutIfNeeded]; // Called on parent view
+    self.calendarContentViewHeightConstraint.constant = calendarHeight;
+    if (animated) {
+        __weak typeof(self) weakSelf = self;
+        [UIView animateWithDuration:0.5f animations:^{
+            [weakSelf.view layoutIfNeeded];
+        }];
+    }
     
 }
 
@@ -326,7 +322,9 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
 
 - (void)refreshTotalTimeLabel{
 
-    self.totalTimeLabel.text = [NSDate timeStringFromInterval:[self getTimeSumOfSelectedEntries]];
+//    self.totalTimeLabel.text = [NSDate timeStringFromInterval:[self getTimeSumOfSelectedEntries]]; //format 23:33
+    NSTimeInterval totalTimeInHours = [self getTimeSumOfSelectedEntries] / 3600.;
+    self.totalTimeLabel.text = [NSString stringWithFormat:@"%.2f", totalTimeInHours]; //format 12.7
     
 }
 

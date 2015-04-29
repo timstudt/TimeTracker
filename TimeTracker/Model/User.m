@@ -8,6 +8,24 @@
 
 #import "User.h"
 
+static NSString *const kUserLastUsedProjectKey = @"keyLastUsedProject";
 @implementation User
+
++ (void)setLastUsedProject:(NSString *)lastUsedProject{
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    
+    // saving an NSString
+    [prefs setObject:lastUsedProject forKey:kUserLastUsedProjectKey];
+    [prefs synchronize];
+    
+}
+
++ (NSString *)lastUsedProject{
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    
+    // getting an NSString
+    return [prefs stringForKey:kUserLastUsedProjectKey];
+    
+}
 
 @end

@@ -17,14 +17,13 @@
 @property (weak, nonatomic) IBOutlet JTCalendarMenuView *calendarMenuView;
 
 @property (weak, nonatomic) IBOutlet JTCalendarContentView *calendarContentView;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *calendarContentViewHeightConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *calendarContentViewHeightConstraint; //needed for resizing calendarview
 @property (weak, nonatomic) IBOutlet UITableView *calendarTableView;
 @property (weak, nonatomic) IBOutlet UILabel *totalTimeLabel;
 
 @property (strong, nonatomic) JTCalendar *calendar;
 @property (nonatomic, strong) CoreDataHelper *coreDataHelper;
 
-- (IBAction)tappedWeekModeToggle:(UIBarButtonItem *)sender;
 - (IBAction)tappedAddButton:(id)sender;
 - (IBAction)tappedGetMonthButton:(UIBarButtonItem *)sender;
 

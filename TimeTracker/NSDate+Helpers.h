@@ -28,5 +28,6 @@ static NSString *const kDateTimeFormat = @"yyyy-MM-dd hh:mm";
 - (NSString *)dateAndTimeStringDoesRelativeDateFormatting:(BOOL)doesRelativeDateFormatting;
 
 + (NSString *)timeStringFromInterval:(NSTimeInterval)interval;
++ (NSTimeInterval)timeIntervalInHours:(NSTimeInterval)interval;
 
 @end

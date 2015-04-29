@@ -137,7 +137,9 @@
 
 - (NSString *)durationString{
 
-    return [NSDate timeStringFromInterval:self.duration];
+    NSTimeInterval timeInHours = self.duration / 3600.;
+    return [NSString stringWithFormat:@"%.2f", timeInHours];
+//    return [NSDate timeStringFromInterval:self.duration];
 
 }
 
