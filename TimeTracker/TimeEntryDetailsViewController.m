@@ -235,6 +235,7 @@ static NSString *const kButtonTitleEdit =  @"Edit";
             if ([self isEditMode]) {
                 detailsTextField.text = content;
             }else{
+                detailsTextField.text = nil;
                 detailsTextField.placeholder = content;
             }
 
