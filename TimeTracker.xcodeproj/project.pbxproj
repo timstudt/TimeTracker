@@ -11,8 +11,6 @@
 		6A02C03D1AF0CF53007D621B /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A02C03C1AF0CF53007D621B /* User.m */; };
 		6A6BF9881AECFE0E00F44007 /* CoreDataHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A6BF9871AECFE0E00F44007 /* CoreDataHelper.m */; };
 		6A6BF98B1AED027900F44007 /* TimeEntry+CoreDataHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A6BF98A1AED027900F44007 /* TimeEntry+CoreDataHelper.m */; };
-		6A6BF98E1AED384800F44007 /* TimeEntryTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6A6BF98C1AED384800F44007 /* TimeEntryTableViewCell.xib */; };
-		6A8BEA551AED3A6D00B2A20C /* TimeEntryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A8BEA541AED3A6D00B2A20C /* TimeEntryTableViewCell.m */; };
 		6A8BEA651AED489800B2A20C /* NSDate+Helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A8BEA641AED489800B2A20C /* NSDate+Helpers.m */; };
 		6A8BEA751AED7CF300B2A20C /* TimeEntryDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6A8BEA741AED7CF300B2A20C /* TimeEntryDetailsViewController.m */; };
 		6AE0B1791AEC3421003B4C49 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AE0B1781AEC3421003B4C49 /* main.m */; };
@@ -47,9 +45,6 @@
 		6A6BF9871AECFE0E00F44007 /* CoreDataHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataHelper.m; sourceTree = "<group>"; };
 		6A6BF9891AED027900F44007 /* TimeEntry+CoreDataHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TimeEntry+CoreDataHelper.h"; path = "Model/TimeEntry+CoreDataHelper.h"; sourceTree = "<group>"; };
 		6A6BF98A1AED027900F44007 /* TimeEntry+CoreDataHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "TimeEntry+CoreDataHelper.m"; path = "Model/TimeEntry+CoreDataHelper.m"; sourceTree = "<group>"; };
-		6A6BF98D1AED384800F44007 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/TimeEntryTableViewCell.xib; sourceTree = "<group>"; };
-		6A8BEA531AED3A6D00B2A20C /* TimeEntryTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeEntryTableViewCell.h; path = Views/TimeEntryTableViewCell.h; sourceTree = "<group>"; };
-		6A8BEA541AED3A6D00B2A20C /* TimeEntryTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TimeEntryTableViewCell.m; path = Views/TimeEntryTableViewCell.m; sourceTree = "<group>"; };
 		6A8BEA631AED489800B2A20C /* NSDate+Helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+Helpers.h"; sourceTree = "<group>"; };
 		6A8BEA641AED489800B2A20C /* NSDate+Helpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Helpers.m"; sourceTree = "<group>"; };
 		6A8BEA661AED5CA800B2A20C /* TimeTracker 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "TimeTracker 2.xcdatamodel"; sourceTree = "<group>"; };
@@ -111,6 +106,8 @@
 		6A6BF9851AEC42BA00F44007 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				6A02C03B1AF0CF53007D621B /* User.h */,
+				6A02C03C1AF0CF53007D621B /* User.m */,
 				6A02C0381AF0C677007D621B /* TimeEntry.h */,
 				6A02C0391AF0C677007D621B /* TimeEntry.m */,
 				6AE0B17D1AEC3421003B4C49 /* TimeTracker.xcdatamodeld */,
@@ -118,8 +115,6 @@
 				6A6BF98A1AED027900F44007 /* TimeEntry+CoreDataHelper.m */,
 				6A6BF9861AECFE0E00F44007 /* CoreDataHelper.h */,
 				6A6BF9871AECFE0E00F44007 /* CoreDataHelper.m */,
-				6A02C03B1AF0CF53007D621B /* User.h */,
-				6A02C03C1AF0CF53007D621B /* User.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -127,8 +122,6 @@
 		6A8BEA561AED3AD800B2A20C /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				6A8BEA531AED3A6D00B2A20C /* TimeEntryTableViewCell.h */,
-				6A8BEA541AED3A6D00B2A20C /* TimeEntryTableViewCell.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -212,7 +205,6 @@
 				6AE0B1861AEC3421003B4C49 /* Images.xcassets */,
 				6AE0B1881AEC3421003B4C49 /* LaunchScreen.xib */,
 				6AE0B1831AEC3421003B4C49 /* Main.storyboard */,
-				6A6BF98C1AED384800F44007 /* TimeEntryTableViewCell.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -303,7 +295,6 @@
 				6AE0B1851AEC3421003B4C49 /* Main.storyboard in Resources */,
 				6AE0B18A1AEC3421003B4C49 /* LaunchScreen.xib in Resources */,
 				6AE0B1871AEC3421003B4C49 /* Images.xcassets in Resources */,
-				6A6BF98E1AED384800F44007 /* TimeEntryTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -363,7 +354,6 @@
 				6A02C03D1AF0CF53007D621B /* User.m in Sources */,
 				6AE0B1821AEC3421003B4C49 /* CalendarViewController.m in Sources */,
 				6AE0B17F1AEC3421003B4C49 /* TimeTracker.xcdatamodeld in Sources */,
-				6A8BEA551AED3A6D00B2A20C /* TimeEntryTableViewCell.m in Sources */,
 				6A8BEA751AED7CF300B2A20C /* TimeEntryDetailsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -387,14 +377,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		6A6BF98C1AED384800F44007 /* TimeEntryTableViewCell.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				6A6BF98D1AED384800F44007 /* Base */,
-			);
-			name = TimeEntryTableViewCell.xib;
-			sourceTree = "<group>";
-		};
 		6AE0B1831AEC3421003B4C49 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

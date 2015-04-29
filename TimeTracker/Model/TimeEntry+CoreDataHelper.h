@@ -20,8 +20,6 @@ static NSString *const kTimeEntryAttributeDuration = @"duration";
 
 
 @interface TimeEntry (CoreDataHelper)
-+ (NSPredicate *)predicateWithDate:(NSDate *)date;
-+ (NSPredicate *)predicateWithStartDate:(NSDate *)startDate endDate:(NSDate *)endDate;
 + (NSArray *)findTimeEntriesWithDateString:(NSString *)date inContext:(NSManagedObjectContext *)context;
 + (NSArray *)findTimeEntriesWithDate:(NSDate *)date inContext:(NSManagedObjectContext *)context;
 + (NSUInteger)countTimeEntriesWithDateString:(NSString *)date inContext:(NSManagedObjectContext *)context;

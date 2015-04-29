@@ -13,27 +13,6 @@
 
 #pragma mark - public class functions
 
-+ (NSPredicate *)predicateWithDateSting:(NSString *)date{
-    
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(dateString = %@)", date];
-    return predicate;
-    
-}
-
-+ (NSPredicate *)predicateWithDate:(NSDate *)date{
-    
-    return [self.class predicateWithStartDate:[date startOfDay] endDate:[date endOfDay]];
-    
-}
-
-+ (NSPredicate *)predicateWithStartDate:(NSDate *)startDate endDate:(NSDate *)endDate{
-
-    //    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"date BETWEEN %@", @[startDate, endDate]];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(date >= %@) AND (date <= %@)", startDate, endDate];
-    return predicate;
-    
-}
-
 + (NSArray *)findTimeEntriesWithDateString:(NSString *)date inContext:(NSManagedObjectContext *)context
 {
     
@@ -110,9 +89,6 @@
 
 + (BOOL)addTimeEntryWithDictionary:(NSDictionary *)timeEntryDictionary inContext:(NSManagedObjectContext *)context{
     
-    //Test Entry
-//    TimeEntry *timeEntry = [[TimeEntry alloc] initWithEntity:[NSEntityDescription entityForName:kTimeEntryEntityName inManagedObjectContext:self.coreDataHelper.context] insertIntoManagedObjectContext:self.coreDataHelper.context];
-
     TimeEntry *newEntry = [NSEntityDescription insertNewObjectForEntityForName:kTimeEntryEntityName inManagedObjectContext:context];
 
     [newEntry mapDictionary:timeEntryDictionary];
@@ -124,6 +100,29 @@
     return success;
 
 }
+
+#pragma mark - private class functions
+
++ (NSPredicate *)predicateWithDateSting:(NSString *)date{
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(dateString = %@)", date];
+    return predicate;
+    
+}
+
++ (NSPredicate *)predicateWithDate:(NSDate *)date{
+    
+    return [self.class predicateWithStartDate:[date startOfDay] endDate:[date endOfDay]];
+    
+}
+
++ (NSPredicate *)predicateWithStartDate:(NSDate *)startDate endDate:(NSDate *)endDate{
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(date >= %@) AND (date <= %@)", startDate, endDate];
+    return predicate;
+    
+}
+
 
 #pragma mark - public methods
 

@@ -98,8 +98,8 @@
                                     </barButtonItem>
                                 </items>
                             </toolbar>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sum" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ByD-Wz-x4C">
-                                <rect key="frame" x="550" y="567" width="36" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="160.65" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ByD-Wz-x4C">
+                                <rect key="frame" x="533" y="567" width="53" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="vhd-01-rr6"/>
                                 </constraints>
@@ -108,7 +108,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Total:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ylh-6g-1Z0">
-                                <rect key="frame" x="500" y="567" width="42" height="21"/>
+                                <rect key="frame" x="477" y="567" width="42" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="AzO-Bo-J9d"/>
                                 </constraints>
@@ -133,11 +133,11 @@
                             <constraint firstAttribute="bottomMargin" secondItem="5QE-x7-MFk" secondAttribute="bottom" constant="44" id="d6b-Op-2ec"/>
                             <constraint firstItem="YRU-8l-PCe" firstAttribute="top" secondItem="ByD-Wz-x4C" secondAttribute="bottom" constant="-32" id="dJf-1h-xE7"/>
                             <constraint firstAttribute="trailingMargin" secondItem="ByD-Wz-x4C" secondAttribute="trailing" constant="-2" id="jx8-zo-nvi"/>
-                            <constraint firstItem="Ylh-6g-1Z0" firstAttribute="leading" secondItem="YRU-8l-PCe" secondAttribute="trailing" constant="-100" id="rde-tR-e3d"/>
+                            <constraint firstItem="Ylh-6g-1Z0" firstAttribute="leading" secondItem="YRU-8l-PCe" secondAttribute="trailing" constant="-123" id="rde-tR-e3d"/>
                             <constraint firstItem="RQm-xy-kOa" firstAttribute="leading" secondItem="1qH-Lp-kON" secondAttribute="leading" id="shK-sA-Vbq"/>
                             <constraint firstItem="YRU-8l-PCe" firstAttribute="leading" secondItem="5QE-x7-MFk" secondAttribute="leading" id="sp0-2b-nuk"/>
                             <constraint firstItem="ByD-Wz-x4C" firstAttribute="centerY" secondItem="Ylh-6g-1Z0" secondAttribute="centerY" id="szL-N4-Okc"/>
-                            <constraint firstItem="ByD-Wz-x4C" firstAttribute="leading" secondItem="YRU-8l-PCe" secondAttribute="trailing" constant="-50" id="tAs-9B-FjE"/>
+                            <constraint firstItem="ByD-Wz-x4C" firstAttribute="leading" secondItem="YRU-8l-PCe" secondAttribute="trailing" constant="-67" id="tAs-9B-FjE"/>
                             <constraint firstItem="RQm-xy-kOa" firstAttribute="trailing" secondItem="1qH-Lp-kON" secondAttribute="trailing" id="tDE-Xv-2kF"/>
                         </constraints>
                     </view>
