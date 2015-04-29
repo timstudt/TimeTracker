@@ -370,6 +370,10 @@ static NSString *const kButtonTitleEdit =  @"Edit";
         switch (parentCellIndexPath.row) {
             case tTimeEntryDetailsDateRowStartTime:
                 self.startTimeEntry = newDate;
+                if ([self.endTimeEntry compare:self.startTimeEntry] == NSOrderedAscending) {
+                    //end date must be higher then start date
+                    self.endTimeEntry = self.startTimeEntry;
+                }
                 break;
             case tTimeEntryDetailsDateRowEndTime:
                 self.endTimeEntry = newDate;
@@ -418,7 +422,7 @@ static NSString *const kButtonTitleEdit =  @"Edit";
         case tTimeEntryDetailsDateRowStartTime:
             datePicker.date = self.startTimeEntry?:[NSDate date];
             datePicker.minimumDate = nil;
-            datePicker.maximumDate = self.endTimeEntry;
+            datePicker.maximumDate = nil;
             break;
         case tTimeEntryDetailsDateRowEndTime:
             datePicker.date = self.endTimeEntry?:[NSDate date];
