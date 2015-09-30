@@ -39,7 +39,7 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    [self setupSpinner];
     [self setupCalendarView];
     
     //store constraint, so we can restore it after change
@@ -79,6 +79,7 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     }else if ([segue.identifier isEqualToString:@"TimeEntryDetailsSegue"]){
         TimeEntryDetailsViewController *detailsViewController = segue.destinationViewController;
         detailsViewController.isEditMode = NO;
+        detailsViewController.enableDeleteButton = YES;
         detailsViewController.delegate = self;
         [detailsViewController setTimeEntry:[self tableDataSelectedEntry]];
     }
@@ -93,6 +94,7 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
 
 #pragma mark - public methods
 - (void)updateUI{
+    [self hidesSpinner];
     [self.calendarTableView reloadData];
     [self refreshTotalTimeLabel];
     
@@ -203,6 +205,13 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     }];
     if (entryToSave.project) {
         [User setLastUsedProject:entryToSave.project];
+        if ([entryToSave.project intValue] < tTimeEntryDetailsProjectTypeNumber1) {
+            if (viewController.notificationSwitchOn){
+                [self resetNotificationTimer];
+            }else{
+                [[UIApplication sharedApplication] cancelAllLocalNotifications];
+            }
+        }
     }
     //refresh done on viewdidappear
     
@@ -255,6 +264,22 @@ static NSString *const kButtonTitleCalendarHide = @"Hide Calendar";
     
 }
 
+#pragma mark - Timer
+- (void)resetNotificationTimer{
+    [[UIApplication sharedApplication] cancelAllLocalNotifications];
+
+    NSDate *date = [NSDate date];
+    NSString *dateString = [date dateAndTimeStringDoesRelativeDateFormatting:YES];
+    NSDate *newDate1 = [date dateByAddingTimeInterval:60*60*4];
+//    NSDate *newDate1 = [date dateByAddingTimeInterval:30];
+    UILocalNotification *localNotif = [[UILocalNotification alloc] init];
+    localNotif.fireDate = newDate1;
+    localNotif.timeZone = [NSTimeZone defaultTimeZone];
+    localNotif.alertBody = [NSString stringWithFormat:@"Time To Feed! Last was %@", dateString];
+    localNotif.alertAction = @"Baby Feed Reminder";
+    localNotif.applicationIconBadgeNumber = 1;
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNotif];
+}
 #pragma mark - private methods
 
 - (void)setupCalendarView{
@@ -369,10 +394,11 @@ static NSString *const kButtonTitleCalendarHide = @"Hide Calendar";
 }
 
 - (void)reloadFetchedItems{
-
+    [self showSpinner];
 //    [self.coreDataHelper fetchItemsMatching:[self datesDisplayed]
 //                               forAttribute:kTimeEntryAttributeDateString
 //                                  sortingBy:nil];
+    
     [TimeEntry CKFindTimeEntriesWithDateString:[self datesDisplayed] completion:^(NSArray<CKRecord *> *results, NSError *error) {
         NSMutableArray *timeEntries = [[NSMutableArray alloc]initWithCapacity:results.count];
         for (CKRecord *record in results) {
@@ -396,6 +422,15 @@ static NSString *const kButtonTitleCalendarHide = @"Hide Calendar";
     
 }
 
+- (void)setupSpinner{
+    self.spinner.hidesWhenStopped = YES;
+}
+- (void)showSpinner{
+    [self.spinner startAnimating];
+}
+- (void)hidesSpinner{
+    [self.spinner stopAnimating];
+}
 #pragma mark - properties setters/getters
 
 /**

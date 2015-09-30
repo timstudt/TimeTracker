@@ -19,6 +19,7 @@
 @property (weak, nonatomic) IBOutlet JTCalendarContentView *calendarContentView;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *calendarContentViewHeightConstraint; //needed for resizing calendarview
 @property (weak, nonatomic) IBOutlet UITableView *calendarTableView;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @property (weak, nonatomic) IBOutlet UILabel *totalTimeLabel;
 
 @property (strong, nonatomic) JTCalendar *calendar;

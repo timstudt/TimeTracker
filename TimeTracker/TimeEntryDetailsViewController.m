@@ -49,7 +49,6 @@ static NSString *const kButtonTitleEdit =  @"Edit";
 //    [self.tableView registerClass:<#(__unsafe_unretained Class)#> forCellReuseIdentifier:<#(NSString *)#>]
     self.tableView.estimatedRowHeight =  100;
     self.tableView.rowHeight =  UITableViewAutomaticDimension;
-    
 }
 
 - (void)viewWillAppear:(BOOL)animated{
@@ -129,7 +128,10 @@ static NSString *const kButtonTitleEdit =  @"Edit";
             }
             break;
             case tTimeEntryDetailsSectionDelete:
-            rows = self.isEditMode? 1:0;
+            rows = self.isEditMode && self.enableDeleteButton? 1:0;
+            break;
+        case tTimeEntryDetailsSectionNotification:
+            rows = [self.projectEntry intValue] <= tTimeEntryDetailsProjectTypeEatBottle? 1:0;
             break;
         default:
             break;
@@ -148,6 +150,11 @@ static NSString *const kButtonTitleEdit =  @"Edit";
             break;
         case tTimeEntryDetailsSectionDescription:
             title = @"Description";
+            break;
+        case tTimeEntryDetailsSectionNotification:
+            if ([self.projectEntry intValue] <= tTimeEntryDetailsProjectTypeEatBottle) {
+                title = @"Notifications";
+            }
             break;
         default:
             break;
@@ -269,6 +276,17 @@ static NSString *const kButtonTitleEdit =  @"Edit";
             }
 
             break;
+        case tTimeEntryDetailsSectionNotification:
+        {
+            reuseId = @"TimeEntryNotificationSwitchCell";
+            cell = [tableView dequeueReusableCellWithIdentifier:reuseId forIndexPath:indexPath];
+            if (!cell) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseId];
+            }
+            UISwitch *notificationSwitch = [cell viewWithTag:1];
+            self.notificationSwitchOn = notificationSwitch.on;
+        }
+            break;
         default:
             NSLog(@"ERROR: unspecified section");
             break;
@@ -358,7 +376,7 @@ static NSString *const kButtonTitleEdit =  @"Edit";
 //    self.projectEntry = TIMEENTRYDETAILSPROJECTTYPESTRING(row);
     self.projectEntry = [@(row) stringValue];
     self.projectPickerIndexPath = nil;
-    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:tTimeEntryDetailsSectionDescription] withRowAnimation:UITableViewRowAnimationAutomatic];
+    [self.tableView reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(tTimeEntryDetailsSectionDescription, 2)] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 #pragma mark - IBOutlets actions
 - (IBAction)cancelButtonPressed:(id)sender {
@@ -397,6 +415,9 @@ static NSString *const kButtonTitleEdit =  @"Edit";
 
     [self performSegueWithIdentifier:@"UnwindCalendarDetailsSegue" sender:self];
 
+}
+- (IBAction)notificationSwitchChanged:(id)sender {
+    self.notificationSwitchOn = ((UISwitch *)sender).on;
 }
 #pragma mark - UITextFieldDelegate methods
 
