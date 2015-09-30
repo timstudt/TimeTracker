@@ -162,10 +162,10 @@
 {
     
     NSPredicate *predicate = [self.class predicateBeginsWithDateString:date];
+//    NSSortDescriptor *sortDescriptorCategory = [NSSortDescriptor sortDescriptorWithKey:@"category" ascending:NO];
     NSSortDescriptor *sortDescriptorDate = [NSSortDescriptor sortDescriptorWithKey:kTimeEntryAttributeDateString ascending:NO];
     NSSortDescriptor *sortDescriptorTime = [NSSortDescriptor sortDescriptorWithKey:kTimeEntryAttributeStartTime ascending:NO];
     NSArray *sortDescriptors = @[sortDescriptorDate, sortDescriptorTime];
-    //    [self findTimeEntriesWithAttribute:kTimeEntryAttributeDateString predicate:predicate sortDescriptors:sortDescriptors inContext:context];
 
     [self CKFindTimeEntriesWithAttribute:kTimeEntryAttributeDateString predicate:predicate sortDescriptors:sortDescriptors completion:completion];
     
@@ -176,25 +176,13 @@
 + (void)CKFindTimeEntriesWithAttribute:(NSString *)attribute predicate:(NSPredicate *)predicate sortDescriptors:(NSArray *)sortDescriptors completion:(void (^)(NSArray <CKRecord *> * __nullable results, NSError * __nullable error))completion
 {
     CKQuery *query = [[CKQuery alloc] initWithRecordType:kCKRecordTypeTimeEntry predicate:predicate];
-    
+    query.sortDescriptors = sortDescriptors;
     [[self database] performQuery:query inZoneWithID:nil completionHandler:^(NSArray<CKRecord *> * _Nullable results, NSError * _Nullable error) {
         NSLog(@"CloudKit results: %@", results);
         if (completion) {
             completion(results, error);
         }
     }];
-    //    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:kTimeEntryEntityName];
-    //    request.predicate = predicate;
-    //
-    //    request.sortDescriptors = sortDescriptors;
-    //
-    //    NSError *error = nil;
-    //    NSArray *matches = [context executeFetchRequest:request error:&error];
-    //    if (error) {
-    //        NSLog(@"%s: ERROR: %@", __FUNCTION__, error.debugDescription);
-    //        abort();
-    //    }
-    //    return matches;
 }
 
 + (void)CKFetchRecordWithIdString:(NSString *)idString completion:(void (^)(CKRecord * __nullable record, NSError * __nullable error))completion{
