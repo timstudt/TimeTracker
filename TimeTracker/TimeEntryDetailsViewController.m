@@ -8,7 +8,7 @@
 
 #import "TimeEntryDetailsViewController.h"
 #import "NSDate+Helpers.h"
-#import "TimeEntry.h"
+#import "TimeEntry+CoreDataHelper.h"
 
 static NSString *const kButtonTitleSave =  @"Save";
 static NSString *const kButtonTitleEdit =  @"Edit";
@@ -33,6 +33,7 @@ static NSString *const kButtonTitleEdit =  @"Edit";
 
 // keep track which indexPath points to the cell with UIDatePicker
 @property (nonatomic, strong) NSIndexPath *datePickerIndexPath;
+@property (nonatomic, strong) NSIndexPath *projectPickerIndexPath;
 @property (nonatomic,strong) UITextField *activeField;
 @end
 
@@ -72,6 +73,7 @@ static NSString *const kButtonTitleEdit =  @"Edit";
     _isEditMode = isEditMode;
     [self refreshNavigationBarButtons];
     self.tableView.userInteractionEnabled = self.isEditMode;
+    [self.tableView reloadData];
     
 }
 
@@ -122,6 +124,12 @@ static NSString *const kButtonTitleEdit =  @"Edit";
             break;
         case tTimeEntryDetailsSectionDescription:
             rows = tTimeEntryDetailsDescriptionRowCount;
+            if (self.projectPickerIndexPath) {
+                rows += 1;
+            }
+            break;
+            case tTimeEntryDetailsSectionDelete:
+            rows = self.isEditMode? 1:0;
             break;
         default:
             break;
@@ -160,7 +168,7 @@ static NSString *const kButtonTitleEdit =  @"Edit";
     switch (indexPath.section) {
         case tTimeEntryDetailsSectionDate:
         {
-            if (self.datePickerIndexPath == indexPath) {
+            if ([self isDatePickerIndexPath:indexPath]) {
                 //date picker
                 cell = [self datePickerCellForTableView:tableView atIndexPath:indexPath];
             }else{
@@ -205,41 +213,61 @@ static NSString *const kButtonTitleEdit =  @"Edit";
             break;
         case tTimeEntryDetailsSectionDescription:
         {
-            reuseId = @"TimeEntryTextCell";
-            cell = [tableView dequeueReusableCellWithIdentifier:reuseId forIndexPath:indexPath];
-            if (!cell) {
-                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:reuseId];
-            }
-            
-            UILabel *titleLabel = (UILabel *)[cell viewWithTag:1];
-            UITextField *detailsTextField = (UITextField *)[cell viewWithTag:2];
-            
-            switch (indexPath.row) {
-                case tTimeEntryDetailsDescriptionRowProject:
-                    title = @"Project";
-                    content = self.projectEntry;
-                    self.projectTextField = detailsTextField;
-
-                    break;
-                case tTimeEntryDetailsDescriptionRowNote:
-                    title = @"Notes";
-                    content = self.noteEntry;
-                    self.noteTextField = detailsTextField;
-                    break;
-                default:
-                    NSLog(@"ERROR: unspecified row in SectionDescription");
-                    break;
-            }
-            
-            titleLabel.text = title;
-            if ([self isEditMode]) {
-                detailsTextField.text = content;
+            if ([self isProjectPickerIndexPath:indexPath]) {
+                cell = [self projectPickerCellForTableView:tableView atIndexPath:indexPath];
             }else{
-                detailsTextField.text = nil;
-                detailsTextField.placeholder = content;
+                reuseId = @"TimeEntryTextCell";
+                cell = [tableView dequeueReusableCellWithIdentifier:reuseId forIndexPath:indexPath];
+                if (!cell) {
+                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:reuseId];
+                }
+                NSInteger row = indexPath.row;
+                reuseId = @"TimeEntryTimeCell";
+                if (self.projectPickerIndexPath && self.projectPickerIndexPath.row < indexPath.row) {
+                    row -= 1;
+                }
+
+                UILabel *titleLabel = (UILabel *)[cell viewWithTag:1];
+                UITextField *detailsTextField = (UITextField *)[cell viewWithTag:2];
+                
+                switch (row) {
+                    case tTimeEntryDetailsDescriptionRowProject:
+                        title = @"Project";
+                        content =  TIMEENTRYDETAILSPROJECTTYPESTRING([self.projectEntry intValue]);
+                        self.projectTextField = detailsTextField;
+                        self.projectTextField.enabled = NO;
+                        
+                        break;
+                    case tTimeEntryDetailsDescriptionRowNote:
+                        title = @"Notes";
+                        content = self.noteEntry;
+                        self.noteTextField = detailsTextField;
+                        self.noteTextField.enabled = YES;
+                        break;
+                    default:
+                        NSLog(@"ERROR: unspecified row in SectionDescription");
+                        break;
+                }
+                
+                titleLabel.text = title;
+                if ([self isEditMode]) {
+                    detailsTextField.text = content;
+                }else{
+                    detailsTextField.text = nil;
+                    detailsTextField.placeholder = content;
+                }
+                
             }
 
         }
+            break;
+        case tTimeEntryDetailsSectionDelete:
+            reuseId = @"TimeEntryDeleteCell";
+            cell = [tableView dequeueReusableCellWithIdentifier:reuseId forIndexPath:indexPath];
+            if (!cell) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseId];
+            }
+
             break;
         default:
             NSLog(@"ERROR: unspecified section");
@@ -257,11 +285,13 @@ static NSString *const kButtonTitleEdit =  @"Edit";
         case tTimeEntryDetailsSectionDate:
         {
             if (self.datePickerIndexPath && self.datePickerIndexPath.row < indexPath.row) {
+                //update
                 self.datePickerIndexPath = indexPath;
-            }else if (self.datePickerIndexPath == indexPath || [self datePickerParentIndexPath] == indexPath){
+            }else if ([self isDatePickerIndexPath:indexPath] || [self isDatePickerParentIndexPath:indexPath]){
+                //reset
                 self.datePickerIndexPath = nil;
             }else{
-                //hide datePicker
+                //show
                 self.datePickerIndexPath = [NSIndexPath indexPathForRow:indexPath.row+1 inSection:indexPath.section];
             }
             
@@ -274,10 +304,23 @@ static NSString *const kButtonTitleEdit =  @"Edit";
         {
             switch (indexPath.row) {
                 case tTimeEntryDetailsDescriptionRowProject:
-                    if (![self.projectTextField isFirstResponder]) {
-                        [self.projectTextField becomeFirstResponder];
+//                    if (![self.projectTextField isFirstResponder]) {
+//                        [self.projectTextField becomeFirstResponder];
+//                    }
+                {
+                    if (self.projectPickerIndexPath && self.projectPickerIndexPath.row < indexPath.row) {
+                        self.projectPickerIndexPath = indexPath;
+                    }else if ([self isProjectPickerIndexPath:indexPath] || [self isProjectPickerParentIndexPath:indexPath]){
+                        self.projectPickerIndexPath = nil;
+                    }else{
+                        //hide datePicker
+                        self.projectPickerIndexPath = [NSIndexPath indexPathForRow:indexPath.row+1 inSection:indexPath.section];
                     }
-                    break;
+                    
+                    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:tTimeEntryDetailsSectionDescription] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    
+
+                }break;
                 case tTimeEntryDetailsDescriptionRowNote:
                     if (![self.noteTextField isFirstResponder]) {
                         [self.noteTextField becomeFirstResponder];
@@ -288,6 +331,10 @@ static NSString *const kButtonTitleEdit =  @"Edit";
             }
         }
             break;
+        case tTimeEntryDetailsSectionDelete:
+            //delete
+            [self deleteButtonTapped:self];
+            break;
         default:
             break;
     }
@@ -295,6 +342,24 @@ static NSString *const kButtonTitleEdit =  @"Edit";
 
 }
 
+#pragma mark - pickerView datasource
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component{
+    return tTimeEntryDetailsProjectTypeCount;
+}
+-(NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView{
+    return 1;
+}
+
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component{
+    return TIMEENTRYDETAILSPROJECTTYPESTRING(row);
+}
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component{
+//    self.projectEntry = TIMEENTRYDETAILSPROJECTTYPESTRING(row);
+    self.projectEntry = [@(row) stringValue];
+    self.projectPickerIndexPath = nil;
+    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:tTimeEntryDetailsSectionDescription] withRowAnimation:UITableViewRowAnimationAutomatic];
+}
 #pragma mark - IBOutlets actions
 - (IBAction)cancelButtonPressed:(id)sender {
     
@@ -324,6 +389,15 @@ static NSString *const kButtonTitleEdit =  @"Edit";
     
 }
 
+- (IBAction)deleteButtonTapped:(id)sender{
+    //delete
+    if ([self.delegate respondsToSelector:@selector(timeEntryDetailsDidDelete:)]) {
+        [self.delegate timeEntryDetailsDidDelete:self];
+    }
+
+    [self performSegueWithIdentifier:@"UnwindCalendarDetailsSegue" sender:self];
+
+}
 #pragma mark - UITextFieldDelegate methods
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
@@ -460,6 +534,47 @@ static NSString *const kButtonTitleEdit =  @"Edit";
     
 }
 
+- (NSIndexPath *)projectPickerParentIndexPath{
+    
+    NSIndexPath *parentCellIndexPath = nil;
+    
+    if ([self projectPickerIndexPath]){
+        
+        parentCellIndexPath = [NSIndexPath indexPathForRow:self.projectPickerIndexPath.row - 1 inSection:self.projectPickerIndexPath.section];
+        
+    }
+    return parentCellIndexPath;
+    
+}
+- (UITableViewCell *)projectPickerCellForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath{
+    
+    UITableViewCell *cell = nil;
+    NSString *reuseId = @"TimeEntryProjectPickerCell";
+    cell = [tableView dequeueReusableCellWithIdentifier:reuseId];
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:reuseId];
+    }
+    UIPickerView *projectPicker = (UIPickerView *)[cell viewWithTag:1];
+    projectPicker.delegate = self;
+    projectPicker.dataSource = self;
+    
+    return cell;
+}
+
+- (BOOL)isDatePickerIndexPath:(NSIndexPath *)indexPath{
+    return (self.datePickerIndexPath && [self.datePickerIndexPath compare:indexPath] == NSOrderedSame);
+}
+                 
+- (BOOL)isDatePickerParentIndexPath:(NSIndexPath *)indexPath{
+    return ([self datePickerParentIndexPath] && [[self datePickerParentIndexPath] compare:indexPath] == NSOrderedSame);
+}
+
+- (BOOL)isProjectPickerIndexPath:(NSIndexPath *)indexPath{
+    return (self.projectPickerIndexPath && [self.projectPickerIndexPath compare:indexPath] == NSOrderedSame);
+}
+- (BOOL)isProjectPickerParentIndexPath:(NSIndexPath *)indexPath{
+    return ([self projectPickerParentIndexPath] && [[self projectPickerParentIndexPath] compare:indexPath] == NSOrderedSame);
+}
 @end
 
 @implementation TimeEntryDetailsViewController (KeyboardEvents)

@@ -11,6 +11,7 @@
 typedef enum : NSUInteger {
     tTimeEntryDetailsSectionDate,
     tTimeEntryDetailsSectionDescription,
+    tTimeEntryDetailsSectionDelete,
     tTimeEntryDetailsSectionCount,
 }tTimeEntryDetailsSectionType;
 
@@ -27,15 +28,27 @@ typedef enum : NSUInteger {
     tTimeEntryDetailsDescriptionRowCount,
 }tTimeEntryDetailsDescriptionRowType;
 
+typedef enum : NSUInteger {
+    tTimeEntryDetailsProjectTypeEatLeft,
+    tTimeEntryDetailsProjectTypeEatRight,
+    tTimeEntryDetailsProjectTypeNumber1,
+    tTimeEntryDetailsProjectTypeNumber2,
+    tTimeEntryDetailsProjectTypeEatBottle,
+    tTimeEntryDetailsProjectTypeCount,
+}tTimeEntryDetailsProjectType;
+#define TIMEENTRYDETAILSPROJECTTYPESTRING(enum) (enum < tTimeEntryDetailsProjectTypeCount? [@[@"Eat Left", @"Eat Right", @"Pee", @"Poo", @"Eat Bottle"] objectAtIndex:enum] : nil)
+//#define TIMEENTRYDETAILSPROJECTTYPESTRING(enum) [@[@"Eat", @"Pee", @"Poo"] objectAtIndex:enum]
+
 @class TimeEntryDetailsViewController, TimeEntry;
 
 @protocol TimeEntryDetailsViewControllerDelegate
 @optional
 -(void)timeEntryDetailsDidSave:(TimeEntryDetailsViewController *)viewController;
 -(void)timeEntryDetailsDidCancel:(TimeEntryDetailsViewController *)viewController;
+-(void)timeEntryDetailsDidDelete:(TimeEntryDetailsViewController *)viewController;
 @end
 
-@interface TimeEntryDetailsViewController : UITableViewController
+@interface TimeEntryDetailsViewController : UITableViewController<UIPickerViewDataSource, UIPickerViewDelegate>
 @property (assign, nonatomic) BOOL isEditMode;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *rightBarButton;

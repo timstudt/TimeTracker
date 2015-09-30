@@ -11,7 +11,7 @@
 #import "TimeEntryDetailsViewController.h"
 #import "CoreDataHelper.h"
 
-@interface CalendarViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, TimeEntryDetailsViewControllerDelegate>
+@interface CalendarViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate, TimeEntryDetailsViewControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *weekModeToggle;
 @property (weak, nonatomic) IBOutlet JTCalendarMenuView *calendarMenuView;
@@ -26,6 +26,8 @@
 
 - (IBAction)tappedAddButton:(id)sender;
 - (IBAction)tappedGetMonthButton:(UIBarButtonItem *)sender;
+
+- (void)updateUI;
 
 @end
 

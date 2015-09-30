@@ -5,9 +5,10 @@
         <attribute name="endTime" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="note" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="project" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="recordId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="startTime" optional="YES" attributeType="Date" syncable="YES"/>
     </entity>
     <elements>
-        <element name="TimeEntry" positionX="7" positionY="-180" width="128" height="120"/>
+        <element name="TimeEntry" positionX="7" positionY="-180" width="128" height="135"/>
     </elements>
 </model>

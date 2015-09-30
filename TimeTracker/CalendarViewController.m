@@ -23,7 +23,17 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
 }
 @end
 
-@implementation CalendarViewController
+@interface CalendarViewController (CloudKit)
+
+#pragma mark - Notification Observers
+- (void)registerForiCloudNotifications;
+- (void) persistentStoreDidImportUbiquitousContentChanges:(NSNotification *)changeNotification;
+
+@end
+
+@implementation CalendarViewController{
+    NSArray<CKRecord *> *_CKTableData;
+}
 
 #pragma mark - ViewController life cycle
 
@@ -36,7 +46,9 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     _calendarContentViewHeightConstraintMonthMode = self.calendarContentViewHeightConstraint.constant;
     
     //setup core data
-    [self.coreDataHelper fetchedResultsController];
+    [self.coreDataHelper fetchedResultsController].delegate = self;
+//    [self registerForiCloudNotifications];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contextDidSave:) name:NSManagedObjectContextDidSaveNotification object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated{
@@ -79,6 +91,14 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     
 }
 
+#pragma mark - public methods
+- (void)updateUI{
+    [self.calendarTableView reloadData];
+    [self refreshTotalTimeLabel];
+    
+    [self.calendar reloadData];
+
+}
 #pragma mark - KVO
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
@@ -110,9 +130,13 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
 
 #pragma mark - UITableView delegate, data source
 
+//- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+//    return [self.coreDataHelper numberOfSections];
+//}
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
 
     NSInteger rows = self.tableData.count;
+//    NSInteger rows = [self.coreDataHelper itemsInSection:section];
     return rows;
 
 }
@@ -129,10 +153,11 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     
     //get timeEntry for row
     TimeEntry *timeEntry = self.tableData[indexPath.row];
+//    TimeEntry *timeEntry = [self.coreDataHelper.fetchedResultsController objectAtIndexPath:indexPath];
     
     //setup cell
     cell.textLabel.text = [NSString stringWithFormat:@"%@",[[NSDate dateFromString:timeEntry.dateString] dateStringDoesRelativeDateFormatting:NO]];
-    cell.detailTextLabel.text = timeEntry.project;
+    cell.detailTextLabel.text =  TIMEENTRYDETAILSPROJECTTYPESTRING([timeEntry.project intValue]);
     UILabel *hoursLabel = (UILabel *)[cell viewWithTag:3];
     hoursLabel.text = [timeEntry durationString];
     
@@ -140,6 +165,17 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     
 }
 
+//#pragma mark - FetchedResultsController delegate
+//
+//- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller{
+//    [self.calendarTableView beginUpdates];
+//}
+//- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller{
+// }
+//
+//- (void)contextDidSave:(id)object{
+//    
+//}
 #pragma mark - TimeEntryDetailsView delegate
 
 - (void)timeEntryDetailsDidCancel:(TimeEntryDetailsViewController *)viewController{
@@ -154,13 +190,31 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     if (!entryToSave) {
         //new entry
         entryToSave = [TimeEntry newTimeEntryInContext:self.coreDataHelper.context];
+//        entryToSave = [TimeEntry CKNewTimeEntry];
     }
     [viewController mapToTimeEntry:entryToSave];
-    [self.coreDataHelper save];
+//    [self.coreDataHelper save];
+    [TimeEntry CKSaveTimeEntry:entryToSave completion:^(CKRecord *record, NSError *error) {
+        if (error) {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Oops" message:@"could not sync data with database" preferredStyle:UIAlertControllerStyleAlert];
+            [self presentViewController:alert animated:YES completion:nil];
+        }
+        [self updateUI];
+    }];
     if (entryToSave.project) {
         [User setLastUsedProject:entryToSave.project];
     }
     //refresh done on viewdidappear
+    
+}
+
+- (void)timeEntryDetailsDidDelete:(TimeEntryDetailsViewController *)viewController{
+    TimeEntry *entryToDelete = [self tableDataSelectedEntry];
+    [TimeEntry CKDeleteTimeEntry:entryToDelete completion:^(CKRecordID * _Nullable recordID, NSError * _Nullable error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self reloadFetchedItems];
+        });
+    }];
     
 }
 
@@ -180,16 +234,18 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
     
 }
 
+static NSString *const kButtonTitleCalendarShow = @"Show Calendar";
+static NSString *const kButtonTitleCalendarHide = @"Hide Calendar";
 - (IBAction)tappedGetMonthButton:(UIBarButtonItem *)sender {
     
     [self unselectHighlightedDate];
     NSString *newTitle = sender.title;
     BOOL goFullsize = NO;
-    if ([sender.title isEqualToString:@"Time Sheet"]) {
-        newTitle = @"Calendar";
+    if ([sender.title isEqualToString:kButtonTitleCalendarHide]) {
+        newTitle = kButtonTitleCalendarShow;
         goFullsize = YES;
-    }else if ([sender.title isEqualToString:@"Calendar"]) {
-        newTitle = @"Time Sheet";
+    }else if ([sender.title isEqualToString:kButtonTitleCalendarShow]) {
+        newTitle = kButtonTitleCalendarHide;
         goFullsize = NO;
     }
     [self activateFullsizeTableView:goFullsize];
@@ -224,8 +280,8 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
 
 - (NSArray *)tableData{
     
-    return self.coreDataHelper.fetchedResultsController.fetchedObjects;
-    
+//    return self.coreDataHelper.fetchedResultsController.fetchedObjects;
+    return _CKTableData;
 }
 
 - (TimeEntry *)tableDataSelectedEntry{
@@ -314,10 +370,22 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
 
 - (void)reloadFetchedItems{
 
-    [self.coreDataHelper fetchItemsMatching:[self datesDisplayed]
-                               forAttribute:kTimeEntryAttributeDateString
-                                  sortingBy:nil];
-
+//    [self.coreDataHelper fetchItemsMatching:[self datesDisplayed]
+//                               forAttribute:kTimeEntryAttributeDateString
+//                                  sortingBy:nil];
+    [TimeEntry CKFindTimeEntriesWithDateString:[self datesDisplayed] completion:^(NSArray<CKRecord *> *results, NSError *error) {
+        NSMutableArray *timeEntries = [[NSMutableArray alloc]initWithCapacity:results.count];
+        for (CKRecord *record in results) {
+            TimeEntry *timeEntry = [TimeEntry newTimeEntryInContext:self.coreDataHelper.context];
+//            TimeEntry *timeEntry = [TimeEntry CKNewTimeEntry];
+            [timeEntry mapFromRecord:record];
+            [timeEntries addObject:timeEntry];
+        }
+        _CKTableData = [NSArray arrayWithArray:timeEntries];
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [self updateUI];
+        });
+    }];
 }
 
 - (void)refreshTotalTimeLabel{
@@ -345,3 +413,65 @@ static NSString *const kCalendarCurrentDateKey = @"currentDate";
 
 }
 @end
+
+@implementation CalendarViewController (CloudKit)
+#pragma mark - Notification Observers
+- (void)registerForiCloudNotifications {
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    NSManagedObjectContext *context = [self coreDataHelper].context;
+    
+    [notificationCenter addObserver:self
+                           selector:@selector(storesWillChange:)
+                               name:NSPersistentStoreCoordinatorStoresWillChangeNotification
+                             object:context.persistentStoreCoordinator];
+    
+    [notificationCenter addObserver:self
+                           selector:@selector(storesDidChange:)
+                               name:NSPersistentStoreCoordinatorStoresDidChangeNotification
+                             object:context.persistentStoreCoordinator];
+    
+    [notificationCenter addObserver:self
+                           selector:@selector(persistentStoreDidImportUbiquitousContentChanges:)
+                               name:NSPersistentStoreDidImportUbiquitousContentChangesNotification
+                             object:context.persistentStoreCoordinator];
+}
+- (void) persistentStoreDidImportUbiquitousContentChanges:(NSNotification *)changeNotification {
+    NSManagedObjectContext *context = [self.coreDataHelper threadMOC];// self.managedObjectContext;
+    
+    [context performBlock:^{
+        [context mergeChangesFromContextDidSaveNotification:changeNotification];
+    }];
+}
+
+- (void)storesWillChange:(NSNotification *)notification {
+    NSManagedObjectContext *context = [self.coreDataHelper threadMOC];// self.managedObjectContext;
+    
+    [context performBlockAndWait:^{
+        NSError *error;
+        
+        if ([context hasChanges]) {
+            BOOL success = [context save:&error];
+            
+            if (!success && error) {
+                // perform error handling
+                NSLog(@"%@",[error localizedDescription]);
+            }
+        }
+        
+        [context reset];
+    }];
+    
+    // Refresh your User Interface.
+}
+
+- (void)storesDidChange:(NSNotification *)notification {
+    // Refresh your User Interface.
+    //    [self fetchData];
+    [self reloadFetchedItems];
+    [self updateUI];
+    
+}
+
+@end
+
+

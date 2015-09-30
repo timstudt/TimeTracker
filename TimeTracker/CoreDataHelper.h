@@ -35,4 +35,6 @@
 - (BOOL) deleteObject: (NSManagedObject *) object;
 
 - (NSInteger) itemsInSection: (NSInteger) section;
+
+- (NSManagedObjectContext *)threadMOC;
 @end

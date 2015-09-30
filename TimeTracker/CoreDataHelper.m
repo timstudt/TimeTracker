@@ -8,6 +8,12 @@
 
 #define DOCUMENTS_FOLDER [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"]
 
+@interface CoreDataHelper (CloudKit)
+
+- (NSDictionary *)iCloudPersistentStoreOptions;
+
+@end
+    
 @implementation CoreDataHelper
 
 #pragma mark Fetch
@@ -31,11 +37,10 @@
         fetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K contains[cd] %@", attribute, searchString];
 
     // Init the fetched results controller
-    NSError __autoreleasing *error;
-//    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:_context sectionNameKeyPath:@"section" cacheName:nil];
-    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:_context sectionNameKeyPath:nil cacheName:nil];
-    
+        //    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:_context sectionNameKeyPath:@"section" cacheName:nil];
+        _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:_context sectionNameKeyPath:nil cacheName:nil];
     // Perform the fetch
+    NSError __autoreleasing *error;
     if (![_fetchedResultsController performFetch:&error])
         NSLog(@"Error fetching data: %@", error.localizedFailureReason);
 }
@@ -53,8 +58,14 @@
 
 - (NSInteger) itemsInSection: (NSInteger) section
 {
-    NSArray *array = _fetchedResultsController.sections[section];
-    return array.count;
+//    NSArray *array = _fetchedResultsController.sections[section];
+//    return array.count;
+    NSInteger items = 0;
+    if ([[_fetchedResultsController sections] count] > 0) {
+        id <NSFetchedResultsSectionInfo> sectionInfo = [[_fetchedResultsController sections] objectAtIndex:section];
+        items = [sectionInfo numberOfObjects];
+    }
+    return items;
 }
 
 - (NSInteger) numberOfEntities
@@ -141,16 +152,43 @@
 
     // Connect to store
     NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@.sqlite", DOCUMENTS_FOLDER, _entityName]];
-    if (![persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:url options:nil error:&error])
+    if (![persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:url options:[self iCloudPersistentStoreOptions] error:&error])
     {
         NSLog(@"Error creating persistent store coordinator: %@", error.localizedFailureReason);
         return;
     }
 
     // Create establish the context
-    _context = [[NSManagedObjectContext alloc] init];
+    _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
     _context.persistentStoreCoordinator = persistentStoreCoordinator;
-
+    _context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
     [self fetchData];
+    
 }
+
+- (NSManagedObjectContext *)threadMOC{
+    return [self threadMOCWithMainMOC:_context];
+}
+- (NSManagedObjectContext *)threadMOCWithMainMOC:(NSManagedObjectContext *)mainMOC
+{
+    NSManagedObjectContext * threadManagedObjectContext = [[NSManagedObjectContext alloc]
+                                                           initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    [threadManagedObjectContext setParentContext:mainMOC];
+    [threadManagedObjectContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
+    return threadManagedObjectContext;
+}
+@end
+
+@implementation CoreDataHelper (CloudKit)
+
+# pragma mark - iCloud Support
+
+/// Use these options in your call to -addPersistentStore:
+- (NSDictionary *)iCloudPersistentStoreOptions {
+    return nil;//@{NSPersistentStoreUbiquitousContentNameKey: @"TimeTracker_DataStore",
+//             NSPersistentStoreUbiquitousContainerIdentifierKey: @"iCloud.dk.timstudt.TimeTracker"
+//             };
+}
+
+
 @end

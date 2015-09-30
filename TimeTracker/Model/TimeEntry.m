@@ -11,10 +11,4 @@
 
 @implementation TimeEntry
 
-@dynamic dateString;
-@dynamic endTime;
-@dynamic note;
-@dynamic project;
-@dynamic startTime;
-
 @end

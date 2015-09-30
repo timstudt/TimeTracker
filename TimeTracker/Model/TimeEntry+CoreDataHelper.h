@@ -7,8 +7,12 @@
 //
 
 #import "TimeEntry.h"
+#import "TimeEntry+CoreDataProperties.h"
+
+@class CKRecord, CKRecordID;
 
 static NSString *const kTimeEntryEntityName = @"TimeEntry";
+static NSString *const kCKRecordTypeTimeEntry = @"TimeEntry";
 
 static NSString *const kTimeEntryAttributeDate = @"date";
 static NSString *const kTimeEntryAttributeDateString = @"dateString";
@@ -30,3 +34,11 @@ static NSString *const kTimeEntryAttributeDuration = @"duration";
 - (NSString *)durationString;
 @end
 
+@interface TimeEntry (CloudKitHelper)
++ (void)CKFindTimeEntriesWithDateString:(NSString *)date completion:(void (^)(NSArray <CKRecord *> * results, NSError * error))completion;
++ (TimeEntry *)CKNewTimeEntry;
+- (void)mapFromRecord:(CKRecord *)record;
++ (void)CKSaveTimeEntry:(TimeEntry *)timeEntry completion:(void (^)(CKRecord * record, NSError * error))completion;
++ (void)CKDeleteTimeEntry:(TimeEntry *)timeEntry completion:(void (^_Nonnull)(CKRecordID * _Nullable recordID, NSError * _Nullable error))completion;
+
+@end
